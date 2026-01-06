@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elderly Hydration Tracker</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; background: #f9f9f9; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .tag { display: inline-block; background: #e1f5fe; color: #0277bd; padding: 4px 8px; border-radius: 4px; font-size: 0.9em; margin-bottom: 20px; }
+        .chain-step { margin-bottom: 1.5rem; padding-left: 20px; border-left: 3px solid #ddd; }
+        .chain-step h3 { margin: 0 0 5px 0; color: #555; font-size: 1.1em; }
+        .chain-step p { margin: 0; color: #333; }
+        .chain-step.result { border-left-color: #00c853; background: #e8f5e9; padding: 15px; border-radius: 0 4px 4px 0; }
+        .back-link { display: inline-block; margin-top: 20px; text-decoration: none; color: #666; }
+        .back-link:hover { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Elderly Hydration Tracker</h1>
+        <div class="tag">Technique: Action Recognition (Hand-to-Mouth interaction)</div>
+
+        <div class="inference-chain">
+            <div class="chain-step">
+                <h3>1. User Pain Point</h3>
+                <p>Dehydration creates confusion and UTIs in the elderly, leading to hospitalization.</p>
+            </div>
+
+            <div class="chain-step">
+                <h3>2. Abstract Need</h3>
+                <p>Monitoring basic biological maintenance activities.</p>
+            </div>
+
+            <div class="chain-step">
+                <h3>3. Initial Solution</h3>
+                <p>Track how often the resident lifts a cup/glass to their mouth.</p>
+            </div>
+
+            <div class="chain-step">
+                <h3>4. Self-Correction / Refutation</h3>
+                <p>Occlusion. Is the cup empty? Did they actually drink?</p>
+            </div>
+
+            <div class="chain-step">
+                <h3>5. Refined Strategy</h3>
+                <p>Track water bottle/pitcher fill levels (Object state). Combine with 'Drinking Action'. Report 'Low Hydration Probablity' if no events for 4 hours.</p>
+            </div>
+
+            <div class="chain-step result">
+                <h3>6. Final Product Feature</h3>
+                <p>Hydration Hygiene Log: Non-intrusive monitoring that alerts caregivers if the resident hasn't been seen drinking water for extended periods.</p>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">← Back to Ideas List</a>
+    </div>
+</body>
+</html>
