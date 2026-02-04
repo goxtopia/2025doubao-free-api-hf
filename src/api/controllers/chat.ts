@@ -224,6 +224,9 @@ async function createCompletion(
       timeout: 300000,
       responseType: "stream"
     });
+    logger.info(`Response status: ${response.status}`);
+    logger.info(`Response headers: ${JSON.stringify(response.headers)}`);
+
     if (response.headers["content-type"].indexOf("text/event-stream") == -1) {
       response.data.on("data", (buffer) => logger.error(buffer.toString()));
       throw new APIException(
@@ -1315,11 +1318,26 @@ async function receiveStream(stream: any): Promise<any> {
           finalize();
           return resolve(data);
         }
-        if (rawResult.event_type != 2001)
-          return;
+
+        // Parse event_data first to check for errors
         const result = _.attempt(() => JSON.parse(rawResult.event_data));
         if (_.isError(result))
           throw new Error(`Stream response invalid: ${rawResult.event_data}`);
+
+        // Check for upstream errors (e.g. rate limit, captcha)
+        if (result && result.code && result.code !== 0) {
+          throw new APIException(
+            EX.API_REQUEST_FAILED,
+            `[Doubao Error]: ${result.code} - ${result.message}`
+          );
+        }
+          isEnd = true;
+          finalize();
+          return resolve(data);
+        }
+        if (rawResult.event_type != 2001)
+          return;
+
         if (result.is_finish) {
           isEnd = true;
           finalize();
@@ -1449,12 +1467,53 @@ function createTransStream(stream: any, endCallback?: Function) {
         endCallback && endCallback(convId);
         return;
       }
-      if (rawResult.event_type != 2001) {
-        return;
-      }
+
+      // Parse event_data first
       const result = _.attempt(() => JSON.parse(rawResult.event_data));
       if (_.isError(result))
         throw new Error(`Stream response invalid: ${rawResult.event_data}`);
+
+      // Check for upstream errors
+      if (result && result.code && result.code !== 0) {
+        const errMsg = `[Doubao Error: ${result.message} (${result.code})]`;
+        transStream.write(`data: ${JSON.stringify({
+          id: convId,
+          model: MODEL_NAME,
+          object: "chat.completion.chunk",
+          choices: [
+            {
+              index: 0,
+              delta: { role: "assistant", content: errMsg },
+              finish_reason: "stop",
+            },
+          ],
+          created,
+        })}\n\n`);
+        !transStream.closed && transStream.end("data: [DONE]\n\n");
+        endCallback && endCallback(convId);
+        return;
+      }
+        transStream.write(`data: ${JSON.stringify({
+          id: convId,
+          model: MODEL_NAME,
+          object: "chat.completion.chunk",
+          choices: [
+            {
+              index: 0,
+              delta: { role: "assistant", content: "" },
+              finish_reason: "stop"
+            },
+          ],
+          created,
+        })}\n\n`);
+        !transStream.closed && transStream.end("data: [DONE]\n\n");
+        endCallback && endCallback(convId);
+        return;
+      }
+      if (rawResult.event_type != 2001) {
+        return;
+      }
+
       if (!convId)
         convId = result.conversation_id;
       if (result.is_finish) {
